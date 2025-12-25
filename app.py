@@ -100,8 +100,6 @@ def get_location_details(lat, lon):
         
         if location:
             address = location.raw['address']
-            # --- LETAKKAN DI SINI ---
-            st.write("Data Mentah Alamat:", address)
             
             # --- LOGIKA PENCARIAN DESA ---
             # Mencoba semua kemungkinan label desa
@@ -255,6 +253,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
