@@ -210,8 +210,30 @@ with col1:
             st.success(f"Lokasi ditemukan: {lat_gps:.4f}, {lon_gps:.4f}")
         else:
             st.warning("Gagal mengakses GPS. Pastikan izin lokasi diaktifkan di browser Anda.")
-    # 1. Inisialisasi Peta
-    m = folium.Map(location=[-4.8666, 105.0568], zoom_start=8)
+
+    # Gunakan session state untuk titik tengah peta (Default Lampung jika belum ada GPS)
+    if 'center' not in st.session_state:
+        st.session_state['center'] = [-4.8666, 105.0568]
+    if 'zoom' not in st.session_state:
+        st.session_state['zoom'] = 8
+
+    # Inisialisasi Peta dengan koordinat dari session state
+    m = folium.Map(
+        location=st.session_state['center'], 
+        zoom_start=st.session_state['zoom']
+    )
+    
+    # Tambahkan Marker jika GPS aktif
+    if 'center' in st.session_state and st.session_state['zoom'] == 15:
+        folium.Marker(
+            st.session_state['center'], 
+            popup="Lokasi Anda",
+            icon=folium.Icon(color='red', icon='info-sign')
+        ).add_to(m)
+
+    # ... Tambahkan fitur peta lainnya (Geocoder, Fullscreen, dll) ...
+    
+    map_output = st_folium(m, height=600, use_container_width=True)
     
     # 2. TAMBAHKAN SCRIPT FULLSCREEN DI SINI
     from folium.plugins import Fullscreen, Geocoder # Pastikan sudah di-import
@@ -283,6 +305,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
