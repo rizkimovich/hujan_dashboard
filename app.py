@@ -195,20 +195,26 @@ def get_rainfall_data(lon, lat):
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.subheader("Peta Interaktif")
-    # Tombol Aktivasi GPS
-    if st.button("📍 Temukan Lokasi Saya"):
-        loc = get_geolocation()
-        if loc:
-            lat_gps = loc['coords']['latitude']
-            lon_gps = loc['coords']['longitude']
-            
-            # Simpan koordinat ke session state agar peta pindah ke lokasi user
-            st.session_state['center'] = [lat_gps, lon_gps]
-            st.session_state['zoom'] = 15
-            st.success(f"Lokasi ditemukan: {lat_gps:.4f}, {lon_gps:.4f}")
-        else:
-            st.warning("Gagal mengakses GPS. Pastikan izin lokasi diaktifkan di browser Anda.")
+   st.subheader("📍 Lokasi Saya")
+# Buat tombol khusus
+if st.button("Dapatkan Koordinat GPS"):
+    # Fungsi ini akan memicu pop-up izin di browser
+    loc = get_geolocation()
+    
+    if loc is not None:
+        # Menampilkan data mentah untuk memastikan GPS terbaca
+        # st.write(loc) 
+        
+        lat = loc['coords']['latitude']
+        lon = loc['coords']['longitude']
+        
+        st.success(f"Lokasi Terdeteksi: {lat}, {lon}")
+        
+        # Simpan ke session state agar peta bergeser
+        st.session_state['center'] = [lat, lon]
+        st.rerun() # Refresh agar peta pindah posisi
+    else:
+        st.error("Gagal mendapatkan lokasi. Pastikan GPS HP aktif dan izin browser diberikan.")
     # 1. Inisialisasi Peta
     m = folium.Map(location=[-4.8666, 105.0568], zoom_start=8)
     
@@ -282,6 +288,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
