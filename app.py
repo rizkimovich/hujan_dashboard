@@ -11,6 +11,9 @@ from folium.plugins import Geocoder, Fullscreen  # <--- Tambahkan Fullscreen di 
 from geopy.geocoders import Nominatim  # Import baru
 import geopandas as gpd
 from shapely.geometry import Point
+from streamlit_js_eval import get_geolocation
+import folium
+from streamlit_folium import st_folium
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
@@ -24,6 +27,18 @@ st.markdown("""
         padding-right: 1rem;
     }
     </style>
+    st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        width: 100%;
+        height: 50px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+        border-radius: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
     """, unsafe_allow_html=True)
 # --- OPTIMASI TAMPILAN MOBILE ---
 st.markdown("""
@@ -191,7 +206,19 @@ col1, col2 = st.columns([2, 1])
 
 with col1:
     st.subheader("Peta Interaktif")
-    
+    # Tombol Aktivasi GPS
+    if st.button("📍 Temukan Lokasi Saya"):
+        loc = get_geolocation()
+        if loc:
+            lat_gps = loc['coords']['latitude']
+            lon_gps = loc['coords']['longitude']
+            
+            # Simpan koordinat ke session state agar peta pindah ke lokasi user
+            st.session_state['center'] = [lat_gps, lon_gps]
+            st.session_state['zoom'] = 15
+            st.success(f"Lokasi ditemukan: {lat_gps:.4f}, {lon_gps:.4f}")
+        else:
+            st.warning("Gagal mengakses GPS. Pastikan izin lokasi diaktifkan di browser Anda.")
     # 1. Inisialisasi Peta
     m = folium.Map(location=[-4.8666, 105.0568], zoom_start=8)
     
@@ -265,6 +292,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
