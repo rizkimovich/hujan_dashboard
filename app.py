@@ -7,9 +7,44 @@ import plotly.express as px
 import rasterio
 import os
 import numpy as np
+from folium.plugins import Geocoder, Fullscreen  # <--- Tambahkan Fullscreen di sini
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
+st.markdown("""
+    <style>
+    /* Mengurangi ruang kosong di bagian atas */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+# --- OPTIMASI TAMPILAN MOBILE ---
+st.markdown("""
+    <style>
+    /* 1. Atur Padding Halaman agar lebih luas di HP */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 5rem;
+    }
+    
+    /* 2. Responsif Peta: Desktop 600px, HP 350px */
+    iframe[title="streamlit_folium.st_folium"] {
+        width: 100% !important;
+    }
+    @media only screen and (max-width: 768px) {
+        iframe[title="streamlit_folium.st_folium"] {
+            height: 350px !important;
+        }
+    }
+    
+    /* 3. Menghilangkan elemen footer bawaan Streamlit agar bersih */
+    footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 st.markdown("""
     <style>
     /* Tampilan Desktop (Layar Besar) */
@@ -116,32 +151,24 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("Peta Interaktif")
     
-    # Inisialisasi Peta (Center Lampung/Sumsel sesuai koordinat awal)
+    # 1. Inisialisasi Peta
     m = folium.Map(location=[-4.8666, 105.0568], zoom_start=8)
     
-    # --- PERBAIKAN OVERLAY ---
-    # Catatan: GeoTIFF tidak bisa langsung ditampilkan di Folium sebagai ImageOverlay.
-    # Harus di-convert ke PNG dulu. Kode di bawah hanya contoh logika Bounds.
+    # 2. TAMBAHKAN SCRIPT FULLSCREEN DI SINI
+    from folium.plugins import Fullscreen, Geocoder # Pastikan sudah di-import
     
-    overlay_ref = os.path.join(DATA_FOLDER, "normal_month_1.tif")
-    if os.path.exists(overlay_ref):
-        try:
-            with rasterio.open(overlay_ref) as src:
-                bounds = [[src.bounds.bottom, src.bounds.left], [src.bounds.top, src.bounds.right]]
-                
-                # JIKA ANDA PUNYA FILE PNG UNTUK VISUALISASI:
-                # image_png = os.path.join(DATA_FOLDER, "visualisasi_overlay.png")
-                # folium.raster_layers.ImageOverlay(
-                #    image=image_png,
-                #    bounds=bounds,
-                #    opacity=0.6
-                # ).add_to(m)
-        except Exception as e:
-            st.warning(f"Gagal memuat batas peta: {e}")
+    Fullscreen(
+        position='topright', # Posisi tombol di pojok kanan atas
+        title='Perbesar Layar', 
+        title_cancel='Keluar', 
+        force_separate_button=True
+    ).add_to(m)
 
+    # 3. Tambahkan fitur lainnya (seperti Geocoder atau Popup)
     Geocoder().add_to(m)
     m.add_child(folium.LatLngPopup()) 
 
+    # 4. Tampilkan peta ke Streamlit
     map_output = st_folium(m, height=600, use_container_width=True)
 
 with col2:
@@ -161,8 +188,18 @@ with col2:
                       markers=True,
                       title="Grafik Curah Hujan (mm)",
                       color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
-        
-        fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+        # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
+fig.update_layout(
+            legend=dict(
+                orientation="h",   # Horizontal (mendatar)
+                yanchor="bottom",
+                y=1.1,             # Taruh sedikit di atas grafik
+                xanchor="center",
+                x=0.5
+            ),
+            margin=dict(l=20, r=20, t=40, b=20), # Margin tipis agar pas di layar HP
+            height=400 
+        )
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("Lihat Data Tabel"):
@@ -171,3 +208,4 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
