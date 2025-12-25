@@ -9,6 +9,8 @@ import os
 import numpy as np
 from folium.plugins import Geocoder, Fullscreen  # <--- Tambahkan Fullscreen di sini
 from geopy.geocoders import Nominatim  # Import baru
+import geopandas as gpd
+from shapely.geometry import Point
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
@@ -93,34 +95,44 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FOLDER = os.path.join(BASE_DIR, "data") 
 
 # --- FUNGSI UTAMA ---
-def get_location_details(lat, lon):
+# --- LOAD DATA SHP SEKALI SAJA (Di luar fungsi agar cepat) ---
+# Gunakan cache agar aplikasi tidak lambat saat loading file SHP yang berat
+@st.cache_data
+def load_shp_data():
+    shp_path = "data/shp/Administrasi_Desa.shp" # Sesuaikan dengan path file Anda
+    gdf = gpd.read_file(shp_path)
+    # Pastikan koordinat SHP adalah WGS84 (Lat/Lon)
+    if gdf.crs != "EPSG:4326":
+        gdf = gdf.to_crs("EPSG:4326")
+    return gdf
+
+# Panggil fungsi load
+gdf_indo = load_shp_data()
+
+def get_location_details_shp(lat, lon):
     try:
-        geolocator = Nominatim(user_agent="monitoring_curah_hujan_v2")
-        location = geolocator.reverse((lat, lon), timeout=10)
+        # 1. Buat titik berdasarkan koordinat klik
+        pnt = Point(lon, lat)
         
-        if location:
-            address = location.raw['address']
+        # 2. Cek titik tersebut masuk ke poligon mana
+        # 'within' mengecek apakah titik ada di dalam poligon
+        match = gdf_indo[gdf_indo.contains(pnt)]
+        
+        if not match.empty:
+            # Ambil baris pertama yang cocok
+            row = match.iloc[0]
             
-            # --- LOGIKA PENCARIAN DESA ---
-            # Mencoba semua kemungkinan label desa
-            desa = (address.get('village') or address.get('suburb') or 
-                    address.get('town') or address.get('hamlet') or 
-                    address.get('neighbourhood') or "Desa tdk terinci")
+            # Sesuaikan nama kolom di bawah dengan header file SHP dari BIG
+            # Biasanya BIG menggunakan nama: NAMOBJ (Desa), WADMKC (Kecamatan), WADMKK (Kabupaten)
+            desa = row.get('DESA', 'Tidak Terdata')
+            kecamatan = row.get('KECAMATAN', 'Tidak Terdata')
+            kabupaten = row.get('KAB_KOTA', 'Tidak Terdata')
             
-            # --- LOGIKA PENCARIAN KECAMATAN ---
-            # Di Indonesia, kecamatan sering muncul di field ini:
-            kecamatan = (address.get('city_district') or address.get('district') or 
-                         address.get('subdistrict') or address.get('municipality') or 
-                         "Kec. tdk terinci")
-            
-            # --- LOGIKA PENCARIAN KABUPATEN ---
-            kabupaten = (address.get('city') or address.get('regency') or 
-                         address.get('county') or "Kab/Kota tdk terinci")
-            
-            return f"{desa}, {kecamatan}, {kabupaten}"
-        return "Koordinat di luar jangkauan"
+            return f"{desa}, Kec. {kecamatan}, {kabupaten}"
+        else:
+            return "Koordinat di luar wilayah administrasi"
     except Exception as e:
-        return "Gagal memuat nama lokasi"
+        return f"Kesalahan membaca SHP: {e}"
 def get_rainfall_data(lon, lat):
     months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
     real_data_normal = []
@@ -208,7 +220,7 @@ with col2:
         click_lng = map_output['last_clicked']['lng']
         # --- AMBIL INFORMASI ALAMAT ---
         with st.spinner("Mencari nama daerah..."):
-            alamat_lengkap = get_location_details(click_lat, click_lng)
+            alamat_lengkap = get_location_details_shp(click_lat, click_lng)
         
         # Tampilkan alamat di dashboard
         st.success(f"📍 **Lokasi:** {alamat_lengkap}")
@@ -253,6 +265,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
