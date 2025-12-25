@@ -100,7 +100,7 @@ def get_rainfall_data(lon, lat):
     # Cek folder data
     if not os.path.exists(DATA_FOLDER):
         st.error(f"Folder data tidak ditemukan di: {DATA_FOLDER}")
-        return pd.DataFrame({"Bulan": months, "Normal": [None]*12, "Tahun 2025": [None]*12})
+        return pd.DataFrame({"Bulan": months, "Normal": [None]*12, "Tahun berjalan": [None]*12})
 
     for i in range(1, 13):
         # Pastikan nama file sesuai (perhatikan penggunaan 's' atau tidak)
@@ -212,6 +212,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
