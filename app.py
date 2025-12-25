@@ -251,61 +251,42 @@ with col1:
     map_output = st_folium(m, height=600, use_container_width=True)
     
  
-
-
 with col2:
     st.subheader("Analisis Lokasi")
     
     if map_output['last_clicked']:
         click_lat = map_output['last_clicked']['lat']
         click_lng = map_output['last_clicked']['lng']
-        # --- AMBIL INFORMASI ALAMAT ---
+        
+        # Ambil informasi alamat
         with st.spinner("Mencari nama daerah..."):
-            alamat_lengkap = get_location_details_shp(click_lat, click_lng)
+            alamat_lengkap = get_location_details(click_lat, click_lng)
         
-        # Tampilkan alamat di dashboard
         st.success(f"📍 **Lokasi:** {alamat_lengkap}")
-        st.caption(f"Koordinat: {click_lat:.4f}, {click_lng:.4f}")
         
-        st.info(f"📍 Koordinat: {click_lat:.4f}, {click_lng:.4f}")
-        
-        # Ambil data
+        # Ambil data curah hujan
         df_rain = get_rainfall_data(click_lng, click_lat)
-        # Update Judul Grafik dengan Alamat
+        
+        # Plotly Grafik
         fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun Berjalan"],
                       markers=True,
                       title=f"Tren Curah Hujan<br><sup>{alamat_lengkap}</sup>",
                       color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
         
-        # Plotly
-        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun Berjalan"],
-                      markers=True,
-                      title="Grafik Curah Hujan (mm)",
-                      color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
-       # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
         fig.update_layout(
-            legend=dict(
-                orientation="h",   # Horizontal (mendatar)
-                yanchor="bottom",
-                y=1.1,             # Taruh sedikit di atas grafik
-                xanchor="center",
-                x=0.5
-            ),
-            margin=dict(l=20, r=20, t=40, b=20), # Margin tipis agar pas di layar HP
+            legend=dict(orientation="h", yanchor="bottom", y=1.1, xanchor="center", x=0.5),
+            margin=dict(l=20, r=20, t=60, b=20),
             height=400 
         )
         
-        # 4. Tampilkan ke Streamlit
+        # Tampilkan grafik
         st.plotly_chart(fig, use_container_width=True)
         
-        # with st.expander("Lihat Data Tabel"):
-           # st.dataframe(df_rain)
-        
-
+        # --- BAGIAN TABEL SUDAH DIHAPUS DI SINI ---
             
     else:
-
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
