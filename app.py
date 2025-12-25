@@ -298,7 +298,7 @@ with col2:
         # 4. Tampilkan ke Streamlit
         st.plotly_chart(fig, use_container_width=True)
         
-        #with st.expander("Lihat Data Tabel"):
+        # with st.expander("Lihat Data Tabel"):
            # st.dataframe(df_rain)
         
 
@@ -306,6 +306,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
