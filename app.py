@@ -17,17 +17,19 @@ from streamlit_folium import st_folium
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
+
 st.markdown("""
     <style>
-    /* Mengurangi ruang kosong di bagian atas */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
+    div.stButton > button:first-child {
+        width: 100%;
+        height: 50px;
+        font-weight: bold;
+        background-color: #007bff;
+        color: white;
+        border-radius: 10px;
     }
+    </style>
 """, unsafe_allow_html=True)
-    """, unsafe_allow_html=True)
 # --- OPTIMASI TAMPILAN MOBILE ---
 st.markdown("""
     <style>
@@ -280,6 +282,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
