@@ -204,6 +204,11 @@ with col2:
         
         # Ambil data
         df_rain = get_rainfall_data(click_lng, click_lat)
+        # Update Judul Grafik dengan Alamat
+        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun Berjalan"],
+                      markers=True,
+                      title=f"Tren Curah Hujan<br><sup>{alamat_lengkap}</sup>",
+                      color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
         
         # Plotly
         fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun Berjalan"],
@@ -234,6 +239,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
