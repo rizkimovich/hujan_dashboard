@@ -216,7 +216,11 @@ with col1:
             st.session_state['center'] = [lat, lon]
             st.session_state['zoom'] = 15
             st.rerun()
-
+# 2. LETAKKAN DI SINI UNTUK CEK DATA
+    if 'user_location' in st.session_state:
+        st.write(f"🔍 Status GPS: **{st.session_state['user_location']}**")
+    else:
+        st.write("🔍 Status GPS: **Belum terdeteksi**")
     # 3. Buat Objek Peta
     m = folium.Map(
         location=st.session_state['center'], 
@@ -302,6 +306,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
