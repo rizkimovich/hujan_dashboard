@@ -249,8 +249,6 @@ with col1:
     Geocoder().add_to(m)
     m.add_child(folium.LatLngPopup()) 
 
-    # 4. Tampilkan peta ke Streamlit
-    map_output = st_folium(m, height=600, use_container_width=True)
 
 with col2:
     st.subheader("Analisis Lokasi")
@@ -305,6 +303,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
