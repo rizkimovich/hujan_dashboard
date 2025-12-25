@@ -197,42 +197,40 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("Peta Interaktif")
     
-    # Tombol Aktivasi GPS
+    # --- LETAKKAN KODE GPS DI SINI ---
     if st.button("📍 Temukan Lokasi Saya"):
         loc = get_geolocation()
-        if loc:
+        
+        if loc is not None:
             lat_gps = loc['coords']['latitude']
             lon_gps = loc['coords']['longitude']
             
-            # Simpan koordinat ke session state agar peta pindah ke lokasi user
+            # Simpan koordinat ke session state
             st.session_state['center'] = [lat_gps, lon_gps]
             st.session_state['zoom'] = 15
-            st.success(f"Lokasi ditemukan: {lat_gps:.4f}, {lon_gps:.4f}")
+            st.rerun() 
         else:
-            st.warning("Gagal mengakses GPS. Pastikan izin lokasi diaktifkan di browser Anda.")
+            st.error("Gagal mengakses GPS. Pastikan izin lokasi aktif dan gunakan HTTPS.")
 
-    # Gunakan session state untuk titik tengah peta (Default Lampung jika belum ada GPS)
+    # --- SETTING DEFAULT KOORDINAT PETA ---
     if 'center' not in st.session_state:
-        st.session_state['center'] = [-4.8666, 105.0568]
+        st.session_state['center'] = [-4.8666, 105.0568] # Default Lampung
     if 'zoom' not in st.session_state:
         st.session_state['zoom'] = 8
 
-    # Inisialisasi Peta dengan koordinat dari session state
+    # --- BUAT PETA MENGGUNAKAN SESSION STATE ---
     m = folium.Map(
         location=st.session_state['center'], 
         zoom_start=st.session_state['zoom']
     )
     
-    # Tambahkan Marker jika GPS aktif
-    if 'center' in st.session_state and st.session_state['zoom'] == 15:
-        folium.Marker(
-            st.session_state['center'], 
-            popup="Lokasi Anda",
-            icon=folium.Icon(color='red', icon='info-sign')
-        ).add_to(m)
+    # Tambahkan Marker jika posisi adalah hasil GPS
+    if st.session_state.get('zoom') == 15:
+        folium.Marker(st.session_state['center'], popup="Lokasi Anda").add_to(m)
 
-    # ... Tambahkan fitur peta lainnya (Geocoder, Fullscreen, dll) ...
-    
+    # ... Tambahkan Geocoder, Fullscreen, dsb ...
+
+    # Tampilkan Peta
     map_output = st_folium(m, height=600, use_container_width=True)
     
  
@@ -291,6 +289,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
