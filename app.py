@@ -194,7 +194,6 @@ def get_rainfall_data(lon, lat):
 # --- LAYOUT APLIKASI ---
 col1, col2 = st.columns([2, 1])
 
-with col1:
  with col1:
     st.subheader("Peta Interaktif")
     
@@ -284,6 +283,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
