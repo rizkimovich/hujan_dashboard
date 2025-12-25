@@ -10,6 +10,21 @@ import numpy as np
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
+st.markdown("""
+    <style>
+    /* Tampilan Desktop (Layar Besar) */
+    iframe[title="streamlit_folium.st_folium"] {
+        height: 600px;
+    }
+
+    /* Tampilan HP (Layar Kecil - max lebar 768px) */
+    @media only screen and (max-width: 768px) {
+        iframe[title="streamlit_folium.st_folium"] {
+            height: 350px !important; /* Peta jadi lebih pendek di HP */
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 # --- CSS HACK UNTUK MENGUBAH KURSOR ---
 st.markdown("""
     <style>
@@ -154,4 +169,5 @@ with col2:
             st.dataframe(df_rain)
             
     else:
+
         st.warning("👈 Klik peta untuk analisis.")
