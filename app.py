@@ -235,19 +235,7 @@ with col1:
     
     map_output = st_folium(m, height=600, use_container_width=True)
     
-    # 2. TAMBAHKAN SCRIPT FULLSCREEN DI SINI
-    from folium.plugins import Fullscreen, Geocoder # Pastikan sudah di-import
-    
-    Fullscreen(
-        position='topright', # Posisi tombol di pojok kanan atas
-        title='Perbesar Layar', 
-        title_cancel='Keluar', 
-        force_separate_button=True
-    ).add_to(m)
-
-    # 3. Tambahkan fitur lainnya (seperti Geocoder atau Popup)
-    Geocoder().add_to(m)
-    m.add_child(folium.LatLngPopup()) 
+ 
 
 
 with col2:
@@ -303,6 +291,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
