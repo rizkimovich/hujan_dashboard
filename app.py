@@ -14,7 +14,7 @@ from shapely.geometry import Point
 from streamlit_js_eval import get_geolocation
 import folium
 from streamlit_folium import st_folium
-
+from streamlit_geolocation import streamlit_geolocation
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
 
@@ -197,20 +197,17 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("Peta Interaktif")
     
-    # --- LETAKKAN KODE GPS DI SINI ---
-    if st.button("📍 Temukan Lokasi Saya"):
-        loc = get_geolocation()
+    # Komponen ini akan memunculkan tombol kecil otomatis
+    location = streamlit_geolocation()
+    
+    if location['latitude'] is not None:
+        lat_gps = location['latitude']
+        lon_gps = location['longitude']
         
-        if loc is not None:
-            lat_gps = loc['coords']['latitude']
-            lon_gps = loc['coords']['longitude']
-            
-            # Simpan koordinat ke session state
-            st.session_state['center'] = [lat_gps, lon_gps]
-            st.session_state['zoom'] = 15
-            st.rerun() 
-        else:
-            st.error("Gagal mengakses GPS. Pastikan izin lokasi aktif dan gunakan HTTPS.")
+        # Simpan ke session state agar peta pindah
+        st.session_state['center'] = [lat_gps, lon_gps]
+        st.session_state['zoom'] = 15
+        st.success(f"GPS Terkunci: {lat_gps:.4f}, {lon_gps:.4f}")
 
     # --- SETTING DEFAULT KOORDINAT PETA ---
     if 'center' not in st.session_state:
@@ -289,6 +286,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
