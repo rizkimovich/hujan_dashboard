@@ -100,7 +100,7 @@ def get_rainfall_data(lon, lat):
     # Cek folder data
     if not os.path.exists(DATA_FOLDER):
         st.error(f"Folder data tidak ditemukan di: {DATA_FOLDER}")
-        return pd.DataFrame({"Bulan": months, "Normal": [None]*12, "Tahun Berjalan": [None]*12})
+        return pd.DataFrame({"Bulan": months, "Normal": [None]*12, "Tahun 2025": [None]*12})
 
     for i in range(1, 13):
         # Pastikan nama file sesuai (perhatikan penggunaan 's' atau tidak)
@@ -184,10 +184,10 @@ with col2:
         df_rain = get_rainfall_data(click_lng, click_lat)
         
         # Plotly
-        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun Berjalan"],
+        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun 2025"],
                       markers=True,
                       title="Grafik Curah Hujan (mm)",
-                      color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
+                      color_discrete_map={"Normal": "gray", "Tahun 2025": "blue"})
        # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
         fig.update_layout(
             legend=dict(
@@ -212,5 +212,6 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
