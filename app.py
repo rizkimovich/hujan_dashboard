@@ -188,8 +188,8 @@ with col2:
                       markers=True,
                       title="Grafik Curah Hujan (mm)",
                       color_discrete_map={"Normal": "gray", "Tahun Berjalan": "blue"})
-        # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
-fig.update_layout(
+       # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
+        fig.update_layout(
             legend=dict(
                 orientation="h",   # Horizontal (mendatar)
                 yanchor="bottom",
@@ -200,12 +200,17 @@ fig.update_layout(
             margin=dict(l=20, r=20, t=40, b=20), # Margin tipis agar pas di layar HP
             height=400 
         )
+        
+        # 4. Tampilkan ke Streamlit
         st.plotly_chart(fig, use_container_width=True)
         
         with st.expander("Lihat Data Tabel"):
             st.dataframe(df_rain)
+        
+
             
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
