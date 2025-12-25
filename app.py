@@ -195,7 +195,7 @@ def get_rainfall_data(lon, lat):
 col1, col2 = st.columns([2, 1])
 
 with col1:
-   st.subheader("📍 Lokasi Saya")
+  st.subheader("📍 Lokasi Saya")
 # Buat tombol khusus
 if st.button("Dapatkan Koordinat GPS"):
     # Fungsi ini akan memicu pop-up izin di browser
