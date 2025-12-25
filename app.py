@@ -184,10 +184,10 @@ with col2:
         df_rain = get_rainfall_data(click_lng, click_lat)
         
         # Plotly
-        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun 2025"],
+        fig = px.line(df_rain, x="Bulan", y=["Normal", "Tahun berjalan"],
                       markers=True,
                       title="Grafik Curah Hujan (mm)",
-                      color_discrete_map={"Normal": "gray", "Tahun 2025": "blue"})
+                      color_discrete_map={"Normal": "gray", "Tahun berjalan": "blue"})
        # 3. LETAKKAN DI SINI (Konfigurasi Tampilan)
         fig.update_layout(
             legend=dict(
@@ -212,6 +212,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
