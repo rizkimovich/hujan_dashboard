@@ -9,3 +9,4 @@ geopy
 pyproj
 geopandas
 streamlit-js-eval
+streamlit-geolocation
