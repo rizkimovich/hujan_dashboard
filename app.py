@@ -197,36 +197,52 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("Peta Interaktif")
     
-    # Komponen ini akan memunculkan tombol kecil otomatis
-    location = streamlit_geolocation()
-    
-    if location['latitude'] is not None:
-        lat_gps = location['latitude']
-        lon_gps = location['longitude']
-        
-        # Simpan ke session state agar peta pindah
-        st.session_state['center'] = [lat_gps, lon_gps]
-        st.session_state['zoom'] = 15
-        st.success(f"GPS Terkunci: {lat_gps:.4f}, {lon_gps:.4f}")
-
-    # --- SETTING DEFAULT KOORDINAT PETA ---
+    # 1. Inisialisasi Session State jika belum ada
     if 'center' not in st.session_state:
         st.session_state['center'] = [-4.8666, 105.0568] # Default Lampung
     if 'zoom' not in st.session_state:
         st.session_state['zoom'] = 8
+    if 'user_location' not in st.session_state:
+        st.session_state['user_location'] = None
 
-    # --- BUAT PETA MENGGUNAKAN SESSION STATE ---
+    # 2. Tombol GPS (Menggunakan streamlit-js-eval atau streamlit-geolocation)
+    if st.button("📍 Temukan Lokasi Saya"):
+        loc = get_geolocation()
+        if loc:
+            lat = loc['coords']['latitude']
+            lon = loc['coords']['longitude']
+            # Simpan koordinat GPS secara khusus
+            st.session_state['user_location'] = [lat, lon]
+            st.session_state['center'] = [lat, lon]
+            st.session_state['zoom'] = 15
+            st.rerun()
+
+    # 3. Buat Objek Peta
     m = folium.Map(
         location=st.session_state['center'], 
         zoom_start=st.session_state['zoom']
     )
+
+    # 4. TAMBAHKAN MARKER GPS (Jika data ada)
+    if st.session_state['user_location']:
+        folium.Marker(
+            st.session_state['user_location'],
+            popup="Lokasi Anda Saat Ini",
+            icon=folium.Icon(color='red', icon='user', prefix='fa') # Ikon orang warna merah
+        ).add_to(m)
+        
+        # Tambahkan lingkaran biru transparan di sekitar GPS (Akurasi)
+        folium.Circle(
+            radius=100,
+            location=st.session_state['user_location'],
+            color='blue',
+            fill=True,
+            fill_opacity=0.2
+        ).add_to(m)
+
+    # Tambahkan fitur peta lainnya (Geocoder, dll)
+    m.add_child(folium.LatLngPopup())
     
-    # Tambahkan Marker jika posisi adalah hasil GPS
-    if st.session_state.get('zoom') == 15:
-        folium.Marker(st.session_state['center'], popup="Lokasi Anda").add_to(m)
-
-    # ... Tambahkan Geocoder, Fullscreen, dsb ...
-
     # Tampilkan Peta
     map_output = st_folium(m, height=600, use_container_width=True)
     
@@ -286,6 +302,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
