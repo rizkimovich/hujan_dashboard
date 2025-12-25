@@ -8,6 +8,7 @@ import rasterio
 import os
 import numpy as np
 from folium.plugins import Geocoder, Fullscreen  # <--- Tambahkan Fullscreen di sini
+from geopy.geocoders import Nominatim  # Import baru
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config (layout="wide", page_title="Analisis Curah Hujan")
@@ -92,6 +93,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FOLDER = os.path.join(BASE_DIR, "data") 
 
 # --- FUNGSI UTAMA ---
+def get_location_details(lat, lon):
+    try:
+        geolocator = Nominatim(user_agent="hujan_app_indonesia")
+        location = geolocator.reverse((lat, lon), timeout=10)
+        address = location.raw['address']
+        
+        # Logika pengambilan nama daerah
+        desa = address.get('village', address.get('suburb', address.get('town', 'Tidak diketahui')))
+        kecamatan = address.get('district', address.get('city_district', 'Tidak diketahui'))
+        kabupaten = address.get('city', address.get('county', address.get('regency', 'Tidak diketahui')))
+        
+        return f"{desa}, Kec. {kecamatan}, {kabupaten}"
+    except:
+        return "Lokasi tidak terdeteksi"
 def get_rainfall_data(lon, lat):
     months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
     real_data_normal = []
@@ -177,6 +192,13 @@ with col2:
     if map_output['last_clicked']:
         click_lat = map_output['last_clicked']['lat']
         click_lng = map_output['last_clicked']['lng']
+        # --- AMBIL INFORMASI ALAMAT ---
+        with st.spinner("Mencari nama daerah..."):
+            alamat_lengkap = get_location_details(click_lat, click_lng)
+        
+        # Tampilkan alamat di dashboard
+        st.success(f"📍 **Lokasi:** {alamat_lengkap}")
+        st.caption(f"Koordinat: {click_lat:.4f}, {click_lng:.4f}")
         
         st.info(f"📍 Koordinat: {click_lat:.4f}, {click_lng:.4f}")
         
@@ -212,6 +234,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
