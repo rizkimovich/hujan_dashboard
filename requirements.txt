@@ -5,4 +5,5 @@ pandas
 plotly
 rasterio
 numpy
+geopy
 pyproj
