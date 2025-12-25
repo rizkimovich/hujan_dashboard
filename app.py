@@ -95,18 +95,32 @@ DATA_FOLDER = os.path.join(BASE_DIR, "data")
 # --- FUNGSI UTAMA ---
 def get_location_details(lat, lon):
     try:
-        geolocator = Nominatim(user_agent="hujan_app_indonesia")
+        geolocator = Nominatim(user_agent="monitoring_curah_hujan_v2")
         location = geolocator.reverse((lat, lon), timeout=10)
-        address = location.raw['address']
         
-        # Logika pengambilan nama daerah
-        desa = address.get('village', address.get('suburb', address.get('town', 'Tidak diketahui')))
-        kecamatan = address.get('district', address.get('city_district', 'Tidak diketahui'))
-        kabupaten = address.get('city', address.get('county', address.get('regency', 'Tidak diketahui')))
-        
-        return f"{desa}, Kec. {kecamatan}, {kabupaten}"
-    except:
-        return "Lokasi tidak terdeteksi"
+        if location:
+            address = location.raw['address']
+            
+            # --- LOGIKA PENCARIAN DESA ---
+            # Mencoba semua kemungkinan label desa
+            desa = (address.get('village') or address.get('suburb') or 
+                    address.get('town') or address.get('hamlet') or 
+                    address.get('neighbourhood') or "Desa tdk terinci")
+            
+            # --- LOGIKA PENCARIAN KECAMATAN ---
+            # Di Indonesia, kecamatan sering muncul di field ini:
+            kecamatan = (address.get('city_district') or address.get('district') or 
+                         address.get('subdistrict') or address.get('municipality') or 
+                         "Kec. tdk terinci")
+            
+            # --- LOGIKA PENCARIAN KABUPATEN ---
+            kabupaten = (address.get('city') or address.get('regency') or 
+                         address.get('county') or "Kab/Kota tdk terinci")
+            
+            return f"{desa}, {kecamatan}, {kabupaten}"
+        return "Koordinat di luar jangkauan"
+    except Exception as e:
+        return "Gagal memuat nama lokasi"
 def get_rainfall_data(lon, lat):
     months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
     real_data_normal = []
@@ -239,6 +253,7 @@ with col2:
     else:
 
         st.warning("👈 Klik peta untuk analisis.")
+
 
 
 
